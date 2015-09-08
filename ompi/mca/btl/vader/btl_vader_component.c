@@ -214,6 +214,7 @@ static int mca_btl_vader_component_register (void)
                                            "single_copy_mechanism", "Single copy mechanism to use (defaults to best available)",
                                            MCA_BASE_VAR_TYPE_INT, new_enum, 0, MCA_BASE_VAR_FLAG_SETTABLE,
                                            OPAL_INFO_LVL_3, MCA_BASE_VAR_SCOPE_GROUP, &mca_btl_vader_component.single_copy_mechanism);
+    OBJ_RELEASE(new_enum);
 
 #if OMPI_BTL_VADER_HAVE_KNEM
     /* Currently disabling DMA mode by default; it's not clear that this is useful in all applications and architectures. */
@@ -324,7 +325,7 @@ static int mca_btl_base_vader_modex_send (void)
         modex.xpmem.seg_id = mca_btl_vader_component.my_seg_id;
         modex.xpmem.segment_base = mca_btl_vader_component.my_segment;
 
-        modex_size = sizeof (modex);
+        modex_size = sizeof (modex.xpmem);
     } else {
 #endif
         /* need to pack the modex data in 1.8 since seg_name is not at the end of the stuct */
@@ -373,22 +374,21 @@ static void mca_btl_vader_check_single_copy (void)
             mca_btl_vader_select_next_single_copy_mechanism ();
         } else {
             mca_btl_vader.super.btl_get = mca_btl_vader_get_xpmem;
-            mca_btl_vader.super.btl_put = mca_btl_vader_get_xpmem;
+            mca_btl_vader.super.btl_put = mca_btl_vader_put_xpmem;
         }
-
     }
 #endif
 
 #if OMPI_BTL_VADER_HAVE_CMA
     if (MCA_BTL_VADER_CMA == mca_btl_vader_component.single_copy_mechanism) {
         /* Check if we have the proper permissions for CMA */
-        char buffer = {0};
+        char buffer = '0';
         bool cma_happy = false;
         int fd;
 
         /* check system setting for current ptrace scope */
         fd = open ("/proc/sys/kernel/yama/ptrace_scope", O_RDONLY);
-        if (0 > fd) {
+        if (0 < fd) {
             read (fd, &buffer, 1);
             close (fd);
         }
@@ -637,24 +637,28 @@ static int mca_btl_vader_poll_fifo (void)
  */
 static void mca_btl_vader_progress_waiting (mca_btl_base_endpoint_t *ep)
 {
-    mca_btl_vader_frag_t *frag;
+    mca_btl_vader_frag_t *frag, *next;
+    int ret = 1;
 
     if (OPAL_UNLIKELY(NULL == ep)) {
         return;
     }
 
     OPAL_THREAD_LOCK(&ep->lock);
-    ep->waiting = false;
-    while (NULL != (frag = (mca_btl_vader_frag_t *) opal_list_remove_first (&ep->pending_frags))) {
+    OPAL_LIST_FOREACH_SAFE(frag, next, &ep->pending_frags, mca_btl_vader_frag_t) {
         OPAL_THREAD_UNLOCK(&ep->lock);
-        if (!vader_fifo_write_ep (frag->hdr, ep)) {
-            opal_list_prepend (&ep->pending_frags, (opal_list_item_t *) frag);
-            opal_list_append (&mca_btl_vader_component.pending_endpoints, &ep->super);
-            ep->waiting = true;
-            break;
+        ret = vader_fifo_write_ep (frag->hdr, ep);
+        if (!ret) {
+            return;
         }
+
         OPAL_THREAD_LOCK(&ep->lock);
+        (void) opal_list_remove_first (&ep->pending_frags);
     }
+
+    ep->waiting = false;
+    opal_list_remove_item (&mca_btl_vader_component.pending_endpoints, &ep->super);
+
     OPAL_THREAD_UNLOCK(&ep->lock);
 }
 
@@ -665,6 +669,7 @@ static void mca_btl_vader_progress_waiting (mca_btl_base_endpoint_t *ep)
  */
 static void mca_btl_vader_progress_endpoints (void)
 {
+    mca_btl_base_endpoint_t *ep, *next;
     int count;
 
     count = opal_list_get_size (&mca_btl_vader_component.pending_endpoints);
@@ -673,10 +678,10 @@ static void mca_btl_vader_progress_endpoints (void)
     }
 
     OPAL_THREAD_LOCK(&mca_btl_vader_component.lock);
-    for (int i = 0 ; i < count ; ++i) {
-        mca_btl_vader_progress_waiting ((mca_btl_base_endpoint_t *) opal_list_remove_first (&mca_btl_vader_component.pending_endpoints));
+    OPAL_LIST_FOREACH_SAFE(ep, next, &mca_btl_vader_component.pending_endpoints, mca_btl_base_endpoint_t) {
+        mca_btl_vader_progress_waiting (ep);
     }
-    OPAL_THREAD_LOCK(&mca_btl_vader_component.lock);
+    OPAL_THREAD_UNLOCK(&mca_btl_vader_component.lock);
 }
 
 static int mca_btl_vader_component_progress (void)

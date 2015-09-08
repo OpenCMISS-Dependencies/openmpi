@@ -12,7 +12,9 @@
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2012 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2014 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -348,6 +350,10 @@ static int bind_downwards(orte_job_t *jdata,
             nxt_obj = trg_obj->next_cousin;
         } while (total_cpus < orte_rmaps_base.cpus_per_rank);
         hwloc_bitmap_list_asprintf(&proc->cpu_bitmap, totalcpuset);
+        opal_output_verbose(5, orte_rmaps_base_framework.framework_output,
+                            "%s PROC %s BITMAP %s",
+                            ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                            ORTE_NAME_PRINT(&proc->name), proc->cpu_bitmap);
         if (4 < opal_output_get_verbosity(orte_rmaps_base_framework.framework_output)) {
             char tmp1[1024], tmp2[1024];
             if (OPAL_ERR_NOT_BOUND == opal_hwloc_base_cset2str(tmp1, sizeof(tmp1),
@@ -671,9 +677,9 @@ int orte_rmaps_base_compute_bindings(orte_job_t *jdata)
     int bind_depth, map_depth;
 
     opal_output_verbose(5, orte_rmaps_base_framework.framework_output,
-                        "mca:rmaps: compute bindings for job %s with policy %s",
+                        "mca:rmaps: compute bindings for job %s with policy %s[%x]",
                         ORTE_JOBID_PRINT(jdata->jobid),
-                        opal_hwloc_base_print_binding(jdata->map->binding));
+                        opal_hwloc_base_print_binding(jdata->map->binding), jdata->map->binding);
 
     map = ORTE_GET_MAPPING_POLICY(jdata->map->mapping);
     bind = OPAL_GET_BINDING_POLICY(jdata->map->binding);

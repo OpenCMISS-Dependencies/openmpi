@@ -17,6 +17,9 @@
  * Copyright (c) 2006-2007 Voltaire All rights reserved.
  * Copyright (c) 2009-2010 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2013-2014 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2014      Bull SAS.  All rights reserved.
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -52,8 +55,8 @@
 
 BEGIN_C_DECLS
 
-#define HAVE_XRC (1 == OMPI_HAVE_CONNECTX_XRC)
-#define ENABLE_DYNAMIC_SL (1 == OMPI_ENABLE_DYNAMIC_SL)
+#define HAVE_XRC (OMPI_HAVE_CONNECTX_XRC || OMPI_HAVE_CONNECTX_XRC_DOMAINS)
+#define ENABLE_DYNAMIC_SL OMPI_ENABLE_DYNAMIC_SL
 
 #define MCA_BTL_IB_LEAVE_PINNED 1
 #define IB_DEFAULT_GID_PREFIX 0xfe80000000000000ll
@@ -285,8 +288,6 @@ struct mca_btl_openib_component_t {
     unsigned int cq_poll_progress;
     unsigned int cq_poll_batch;
     unsigned int eager_rdma_poll_ratio;
-    /** Whether we want fork support or not */
-    int want_fork_support;
     int rdma_qp;
     int credits_qp; /* qp used for software flow control */
     bool cpc_explicitly_defined;
@@ -400,7 +401,11 @@ typedef struct mca_btl_openib_device_t {
     volatile bool got_port_event;
 #endif
 #if HAVE_XRC
+#if OMPI_HAVE_CONNECTX_XRC_DOMAINS
+    struct ibv_xrcd *xrcd;
+#else
     struct ibv_xrc_domain *xrc_domain;
+#endif
     int xrc_fd;
 #endif
     int32_t non_eager_rdma_endpoints;

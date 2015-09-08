@@ -189,7 +189,7 @@ static int hcoll_register(void)
 
     CHECK(reg_int("enable",NULL,
                   "[1|0|] Enable/Disable HCOL",
-                  0 /*disable by default*/,
+                  1,
                   &mca_coll_hcoll_component.hcoll_enable,
                   0));
 
@@ -212,7 +212,6 @@ static int hcoll_register(void)
 
 static int hcoll_open(void)
 {
-    int rc;
     mca_coll_hcoll_component_t *cm;
     cm  = &mca_coll_hcoll_component;
 
@@ -252,6 +251,10 @@ static int hcoll_close(void)
     if (cm->using_mem_hooks) {
         opal_mem_hooks_unregister_release(mca_coll_hcoll_mem_release_cb);
     }
+
+#if HCOLL_API >= HCOLL_VERSION(3,2)
+    hcoll_free_init_opts(cm->init_opts);
+#endif
 
     HCOL_VERBOSE(5,"HCOLL FINALIZE");
     rc = hcoll_finalize();

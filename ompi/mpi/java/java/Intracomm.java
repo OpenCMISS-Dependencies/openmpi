@@ -1,4 +1,26 @@
 /*
+ * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
+ *                         University Research and Technology
+ *                         Corporation.  All rights reserved.
+ * Copyright (c) 2004-2005 The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
+ * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+ *                         University of Stuttgart.  All rights reserved.
+ * Copyright (c) 2004-2005 The Regents of the University of California.
+ *                         All rights reserved.
+ * $COPYRIGHT$
+ * 
+ * Additional copyrights may follow
+ * 
+ * $HEADER$
+ */
+/*
+ * This file is almost a complete re-write for Open MPI compared to the
+ * original mpiJava package. Its license and copyright are listed below.
+ * See <path to ompi/mpi/java/README> for more information.
+ */
+/*
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -397,9 +419,11 @@ public final Request iScan(Buffer sendbuf, Buffer recvbuf,
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iScan(handle, sendbuf, recvbuf, count,
-                             type.handle, type.baseType, op, op.handle));
+    Request req = new Request(iScan(handle, sendbuf, recvbuf, count,
+            type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -419,10 +443,11 @@ public final Request iScan(Buffer buf, int count, Datatype type, Op op)
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(buf);
-
-    return new Request(iScan(
+    Request req = new Request(iScan(
             handle, null, buf, count,
             type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iScan(
@@ -521,9 +546,11 @@ public final Request iExScan(Buffer sendbuf, Buffer recvbuf,
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iExScan(handle, sendbuf, recvbuf, count,
-                               type.handle, type.baseType, op, op.handle));
+    Request req = new Request(iExScan(handle, sendbuf, recvbuf, count,
+            type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -543,10 +570,11 @@ public final Request iExScan(Buffer buf, int count, Datatype type, Op op)
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(buf);
-
-    return new Request(iExScan(
+    Request req = new Request(iExScan(
             handle, null, buf, count,
             type.handle, type.baseType, op, op.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iExScan(

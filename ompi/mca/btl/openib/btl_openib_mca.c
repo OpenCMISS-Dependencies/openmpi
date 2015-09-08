@@ -9,7 +9,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2013 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2006-2009 Mellanox Technologies. All rights reserved.
  * Copyright (c) 2006-2007 Los Alamos National Security, LLC.  All rights
  *                         reserved.
@@ -34,6 +34,7 @@
 #include "opal/util/os_dirpath.h"
 #include "opal/util/output.h"
 #include "opal/util/show_help.h"
+#include "ompi/mca/common/verbs/common_verbs.h"
 #include "btl_openib.h"
 #include "btl_openib_mca.h"
 #include "btl_openib_ini.h"
@@ -265,11 +266,6 @@ int btl_openib_register_mca_params(void)
                    "Retrieve up to poll_cq_batch completions from CQ",
                    MCA_BTL_OPENIB_CQ_POLL_BATCH_DEFAULT, &mca_btl_openib_component.cq_poll_batch,
                    REGINT_GE_ONE));
-
-    CHECK(reg_int("want_fork_support", NULL,
-                  "Whether fork support is desired or not "
-                  "(negative = try to enable fork support, but continue even if it is not available, 0 = do not enable fork support, positive = try to enable fork support and fail if it is not available)",
-                  0, &mca_btl_openib_component.want_fork_support, 0));
 
     asprintf(&str, "%s/mca-btl-openib-device-params.ini",
              opal_install_dirs.ompidatadir);
@@ -714,11 +710,12 @@ int btl_openib_register_mca_params(void)
                   32, &mca_btl_openib_component.use_memalign,
                   REGINT_GE_ZERO));
 
-    mca_btl_openib_component.memalign_threshold = mca_btl_openib_component.eager_limit;
+    mca_btl_openib_component.memalign_threshold =
+        mca_btl_openib_module.super.btl_eager_limit;
     tmp = mca_base_component_var_register(&mca_btl_openib_component.super.btl_version,
                                           "memalign_threshold",
                                           "Allocating memory more than btl_openib_memalign_threshhold"
-                                          "bytes will automatically be algined to the value of btl_openib_memalign bytes."
+                                          "bytes will automatically be aligned to the value of btl_openib_memalign bytes."
                                           "memalign_threshhold defaults to the same value as mca_btl_openib_eager_limit.",
                                           MCA_BASE_VAR_TYPE_SIZE_T, NULL, 0, 0,
                                           OPAL_INFO_LVL_9,
@@ -811,13 +808,10 @@ int btl_openib_verify_mca_params (void)
      * fork support, then turn it off in the presence of GDR.  */
     if (mca_btl_openib_component.cuda_want_gdr && mca_btl_openib_component.cuda_have_gdr &&
         mca_btl_openib_component.driver_have_gdr) {
-        if (1 == mca_btl_openib_component.want_fork_support) {
+        if (1 == ompi_common_verbs_want_fork_support) {
               opal_show_help("help-mpi-btl-openib.txt", "no_fork_with_gdr",
                              true, ompi_process_info.nodename);
               return OMPI_ERR_BAD_PARAM;
-        }
-        if (-1 == mca_btl_openib_component.want_fork_support) {
-            mca_btl_openib_component.want_fork_support = 0;
         }
     }
 #endif

@@ -1,12 +1,14 @@
 # -*- makefile -*-
 #
-# Copyright (c) 2006-2014 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2012-2013 The University of Tennessee and The University
 #                         of Tennessee Research Foundation.  All rights
 #                         reserved.
 # Copyright (c) 2012-2013 Inria.  All rights reserved.
 # Copyright (c) 2013      Los Alamos National Security, LLC. All rights
 #                         reserved.
+# Copyright (c) 2015      Research Organization for Information Science
+#                         and Technology (RIST). All rights reserved.
 #
 # $COPYRIGHT$
 # 
@@ -56,7 +58,9 @@ sizeof_f08.h:
 	$(OMPI_V_GEN) $(sizeof_pl) \
 	    --header=$@ --ierror=optional \
 	    --maxrank=$(OMPI_FORTRAN_MAX_ARRAY_RANK) \
-	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF)
+	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF) \
+	    --real16=$(OMPI_HAVE_FORTRAN_REAL16) \
+	    --complex32=$(OMPI_HAVE_FORTRAN_COMPLEX32)
 
 sizeof_f08.f90: $(top_builddir)/config.status
 sizeof_f08.f90: $(sizeof_pl)
@@ -64,7 +68,9 @@ sizeof_f08.f90:
 	$(OMPI_V_GEN) $(sizeof_pl) \
 	    --impl=$@ --ierror=optional --mpi \
 	    --maxrank=$(OMPI_FORTRAN_MAX_ARRAY_RANK) \
-	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF)
+	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF) \
+	    --real16=$(OMPI_HAVE_FORTRAN_REAL16) \
+	    --complex32=$(OMPI_HAVE_FORTRAN_COMPLEX32)
 
 profile/psizeof_f08.f90: $(top_builddir)/config.status
 profile/psizeof_f08.f90: $(sizeof_pl)
@@ -72,7 +78,9 @@ profile/psizeof_f08.f90:
 	$(OMPI_V_GEN) $(sizeof_pl) \
 	    --impl=$@ --ierror=optional --pmpi \
 	    --maxrank=$(OMPI_FORTRAN_MAX_ARRAY_RANK) \
-	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF)
+	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF) \
+	    --real16=$(OMPI_HAVE_FORTRAN_REAL16) \
+	    --complex32=$(OMPI_HAVE_FORTRAN_COMPLEX32)
 
 CLEANFILES += sizeof_f08.h sizeof_f08.f90 profile/psizeof_f08.f90
 
@@ -93,6 +101,7 @@ mpi_api_files = \
         bcast_f08.F90 \
         bsend_f08.F90 \
         bsend_init_f08.F90 \
+        buffer_detach.c \
         buffer_attach_f08.F90 \
         buffer_detach_f08.F90 \
         cancel_f08.F90 \
@@ -797,6 +806,7 @@ endif
 libmpi_usempif08_la_LIBADD = \
         $(module_sentinel_file) \
         $(OMPI_MPIEXT_USEMPIF08_LIBS) \
+        $(top_builddir)/ompi/mpi/fortran/mpif-h/libmpi_mpifh.la \
         $(top_builddir)/ompi/libmpi.la
 libmpi_usempif08_la_DEPENDENCIES = $(module_sentinel_file)
 libmpi_usempif08_la_LDFLAGS = -version-info $(libmpi_usempif08_so_version)

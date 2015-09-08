@@ -302,12 +302,14 @@ int ompi_mtl_mxm_module_init(void)
         MXM_VERBOSE(1, "MXM support will be disabled because of total number "
                     "of processes (%lu) is less than the minimum set by the "
                     "mtl_mxm_np MCA parameter (%u)", totps, ompi_mtl_mxm.mxm_np);
+        free(procs);
         return OMPI_ERR_NOT_SUPPORTED;
     }
     MXM_VERBOSE(1, "MXM support enabled");
 
     if (ORTE_NODE_RANK_INVALID == (lr = ompi_process_info.my_node_rank)) {
         MXM_ERROR("Unable to obtain local node rank");
+        free(procs);
         return OMPI_ERROR;
     }
     nlps = ompi_process_info.num_local_peers + 1;
@@ -317,6 +319,7 @@ int ompi_mtl_mxm_module_init(void)
             mxlr = max(mxlr, procs[proc]->proc_name.vpid);
         }
     }
+    free(procs);
 
     /* Setup the endpoint options and local addresses to bind to. */
 #if MXM_API < MXM_VERSION(2,0)
@@ -401,7 +404,7 @@ int ompi_mtl_mxm_add_procs(struct mca_mtl_base_module_t *mtl, size_t nprocs,
     mxm_conn_req_t *conn_reqs;
     size_t ep_index = 0;
 #endif
-    void *ep_address;
+    void *ep_address = NULL;
     size_t ep_address_len;
     mxm_error_t err;
     size_t i;
@@ -427,6 +430,7 @@ int ompi_mtl_mxm_add_procs(struct mca_mtl_base_module_t *mtl, size_t nprocs,
         }
         rc = ompi_mtl_mxm_recv_ep_address(procs[i], &ep_address, &ep_address_len);
         if (rc != OMPI_SUCCESS) {
+            free(ep_address);
             goto bail;
         }
 
@@ -434,6 +438,7 @@ int ompi_mtl_mxm_add_procs(struct mca_mtl_base_module_t *mtl, size_t nprocs,
         if (ep_address_len != sizeof(ep_info[i])) {
             MXM_ERROR("Invalid endpoint address length");
             rc = OMPI_ERROR;
+            free(ep_address);
             goto bail;
         }
 
@@ -450,6 +455,7 @@ int ompi_mtl_mxm_add_procs(struct mca_mtl_base_module_t *mtl, size_t nprocs,
         if (err != MXM_OK) {
             MXM_ERROR("MXM returned connect error: %s\n", mxm_error_string(err));
             rc = OMPI_ERROR;
+            free(ep_address);
             goto bail;
         }
         procs[i]->proc_endpoints[OMPI_PROC_ENDPOINT_TAG_MTL] = endpoint;

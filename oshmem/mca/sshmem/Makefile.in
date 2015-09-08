@@ -26,12 +26,14 @@
 
 # Copyright (c) 2014      Mellanox Technologies, Inc.
 #                         All rights reserved.
+# Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
 # $COPYRIGHT$
 # 
 # Additional copyrights may follow
 # 
 # $HEADER$
 #
+
 
 
 VPATH = @srcdir@
@@ -71,9 +73,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-DIST_COMMON = $(am__nobase_oshmem_HEADERS_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/base/Makefile.am \
-	$(top_srcdir)/config/depcomp
+DIST_COMMON = $(am__nobase_oshmem_HEADERS_DIST) $(dist_ompidata_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/base/Makefile.am $(top_srcdir)/config/depcomp
 subdir = oshmem/mca/sshmem
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -82,7 +84,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/cxx_find_template_parameters.m4 \
 	$(top_srcdir)/config/cxx_find_template_repository.m4 \
 	$(top_srcdir)/config/cxx_have_exceptions.m4 \
-	$(top_srcdir)/config/libtool.m4 $(top_srcdir)/config/ltdl.m4 \
+	$(top_srcdir)/config/libtool.m4 \
 	$(top_srcdir)/config/ltoptions.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \
@@ -94,13 +96,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_check_knem.m4 \
 	$(top_srcdir)/config/ompi_check_libfca.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
-	$(top_srcdir)/config/ompi_check_mx.m4 \
 	$(top_srcdir)/config/ompi_check_mxm.m4 \
 	$(top_srcdir)/config/ompi_check_openfabrics.m4 \
 	$(top_srcdir)/config/ompi_check_package.m4 \
 	$(top_srcdir)/config/ompi_check_portals4.m4 \
 	$(top_srcdir)/config/ompi_check_ps.m4 \
 	$(top_srcdir)/config/ompi_check_psm.m4 \
+	$(top_srcdir)/config/ompi_check_psm2.m4 \
 	$(top_srcdir)/config/ompi_check_pvfs2.m4 \
 	$(top_srcdir)/config/ompi_check_ugni.m4 \
 	$(top_srcdir)/config/ompi_check_vendor.m4 \
@@ -161,6 +163,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_compiler_version.m4 \
 	$(top_srcdir)/config/opal_check_cuda.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
+	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_pmi.m4 \
@@ -176,7 +179,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_setup_cc.m4 \
 	$(top_srcdir)/config/opal_setup_cxx.m4 \
 	$(top_srcdir)/config/opal_setup_java.m4 \
-	$(top_srcdir)/config/opal_setup_libltdl.m4 \
 	$(top_srcdir)/config/opal_setup_wrappers.m4 \
 	$(top_srcdir)/config/orte_check_alps.m4 \
 	$(top_srcdir)/config/orte_check_loadleveler.m4 \
@@ -192,6 +194,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/oshmem_setup_profiling.m4 \
 	$(top_srcdir)/config/autogen_found_items.m4 \
 	$(top_srcdir)/opal/mca/backtrace/configure.m4 \
+	$(top_srcdir)/opal/mca/dl/configure.m4 \
 	$(top_srcdir)/opal/mca/event/configure.m4 \
 	$(top_srcdir)/opal/mca/hwloc/configure.m4 \
 	$(top_srcdir)/opal/mca/installdirs/configure.m4 \
@@ -209,6 +212,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/crs/blcr/configure.m4 \
 	$(top_srcdir)/opal/mca/db/pmi/configure.m4 \
 	$(top_srcdir)/opal/mca/db/sqlite/configure.m4 \
+	$(top_srcdir)/opal/mca/dl/libltdl/configure.m4 \
+	$(top_srcdir)/opal/mca/dl/dlopen/configure.m4 \
 	$(top_srcdir)/opal/mca/event/libevent2021/configure.m4 \
 	$(top_srcdir)/opal/mca/event/external/configure.m4 \
 	$(top_srcdir)/opal/mca/hwloc/hwloc191/configure.m4 \
@@ -262,7 +267,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
 	$(top_srcdir)/orte/mca/rmaps/mindist/configure.m4 \
-	$(top_srcdir)/orte/mca/rmaps/lama/configure.m4 \
 	$(top_srcdir)/orte/mca/rmaps/rank_file/configure.m4 \
 	$(top_srcdir)/orte/mca/rml/ftrm/configure.m4 \
 	$(top_srcdir)/orte/mca/sensor/resusage/configure.m4 \
@@ -280,7 +284,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ugni/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/sm/configure.m4 \
-	$(top_srcdir)/ompi/mca/common/mx/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
@@ -298,6 +301,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/ml/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/dpm/orte/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
@@ -308,14 +312,16 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mpool/rgpusm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mpool/gpusm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
+	$(top_srcdir)/ompi/mca/mtl/ofi/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/mxm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
-	$(top_srcdir)/ompi/mca/mtl/mx/configure.m4 \
-	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/bfo/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/yalla/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pubsub/pmi/configure.m4 \
 	$(top_srcdir)/ompi/mca/pubsub/orte/configure.m4 \
@@ -427,7 +433,9 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(oshmemdir)" "$(DESTDIR)$(oshmemdir)"
+am__installdirs = "$(DESTDIR)$(ompidatadir)" "$(DESTDIR)$(oshmemdir)" \
+	"$(DESTDIR)$(oshmemdir)"
+DATA = $(dist_ompidata_DATA)
 am__nobase_oshmem_HEADERS_DIST = sshmem.h sshmem_types.h base/base.h
 HEADERS = $(nobase_nodist_oshmem_HEADERS) $(nobase_oshmem_HEADERS)
 ETAGS = etags
@@ -512,7 +520,6 @@ HWLOC_REQUIRES = @HWLOC_REQUIRES@
 HWLOC_X11_LIBS = @HWLOC_X11_LIBS@
 HWLOC_top_builddir = @HWLOC_top_builddir@
 HWLOC_top_srcdir = @HWLOC_top_srcdir@
-INCLTDL = @INCLTDL@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -526,15 +533,11 @@ LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
-LIBLTDL = @LIBLTDL@
-LIBLTDL_SUBDIR = @LIBLTDL_SUBDIR@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
-LTDLDEPS = @LTDLDEPS@
-LTDLINCL = @LTDLINCL@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -756,6 +759,13 @@ MCA_opal_db_DSO_SUBDIRS = @MCA_opal_db_DSO_SUBDIRS@
 MCA_opal_db_STATIC_COMPONENTS = @MCA_opal_db_STATIC_COMPONENTS@
 MCA_opal_db_STATIC_LTLIBS = @MCA_opal_db_STATIC_LTLIBS@
 MCA_opal_db_STATIC_SUBDIRS = @MCA_opal_db_STATIC_SUBDIRS@
+MCA_opal_dl_ALL_COMPONENTS = @MCA_opal_dl_ALL_COMPONENTS@
+MCA_opal_dl_ALL_SUBDIRS = @MCA_opal_dl_ALL_SUBDIRS@
+MCA_opal_dl_DSO_COMPONENTS = @MCA_opal_dl_DSO_COMPONENTS@
+MCA_opal_dl_DSO_SUBDIRS = @MCA_opal_dl_DSO_SUBDIRS@
+MCA_opal_dl_STATIC_COMPONENTS = @MCA_opal_dl_STATIC_COMPONENTS@
+MCA_opal_dl_STATIC_LTLIBS = @MCA_opal_dl_STATIC_LTLIBS@
+MCA_opal_dl_STATIC_SUBDIRS = @MCA_opal_dl_STATIC_SUBDIRS@
 MCA_opal_event_ALL_COMPONENTS = @MCA_opal_event_ALL_COMPONENTS@
 MCA_opal_event_ALL_SUBDIRS = @MCA_opal_event_ALL_SUBDIRS@
 MCA_opal_event_DSO_COMPONENTS = @MCA_opal_event_DSO_COMPONENTS@
@@ -1140,6 +1150,7 @@ OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
 OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
+OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
 OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
@@ -1215,6 +1226,7 @@ OPAL_MAX_PORT_NAME = @OPAL_MAX_PORT_NAME@
 OPAL_MAX_PROCESSOR_NAME = @OPAL_MAX_PROCESSOR_NAME@
 OPAL_MINOR_VERSION = @OPAL_MINOR_VERSION@
 OPAL_PARAM_FROM_PLATFORM = @OPAL_PARAM_FROM_PLATFORM@
+OPAL_PKG_CONFIG_LDFLAGS = @OPAL_PKG_CONFIG_LDFLAGS@
 OPAL_RELEASE_DATE = @OPAL_RELEASE_DATE@
 OPAL_RELEASE_VERSION = @OPAL_RELEASE_VERSION@
 OPAL_REPO_REV = @OPAL_REPO_REV@
@@ -1231,6 +1243,7 @@ OPAL_WRAPPER_EXTRA_LIBS = @OPAL_WRAPPER_EXTRA_LIBS@
 ORTE_GREEK_VERSION = @ORTE_GREEK_VERSION@
 ORTE_MAJOR_VERSION = @ORTE_MAJOR_VERSION@
 ORTE_MINOR_VERSION = @ORTE_MINOR_VERSION@
+ORTE_PKG_CONFIG_LDFLAGS = @ORTE_PKG_CONFIG_LDFLAGS@
 ORTE_RELEASE_DATE = @ORTE_RELEASE_DATE@
 ORTE_RELEASE_VERSION = @ORTE_RELEASE_VERSION@
 ORTE_REPO_REV = @ORTE_REPO_REV@
@@ -1313,10 +1326,6 @@ btl_sm_CPPFLAGS = @btl_sm_CPPFLAGS@
 btl_ugni_CPPFLAGS = @btl_ugni_CPPFLAGS@
 btl_ugni_LDFLAGS = @btl_ugni_LDFLAGS@
 btl_ugni_LIBS = @btl_ugni_LIBS@
-btl_usnic_CFLAGS = @btl_usnic_CFLAGS@
-btl_usnic_CPPFLAGS = @btl_usnic_CPPFLAGS@
-btl_usnic_LDFLAGS = @btl_usnic_LDFLAGS@
-btl_usnic_LIBS = @btl_usnic_LIBS@
 btl_vader_CFLAGS = @btl_vader_CFLAGS@
 btl_vader_CPPFLAGS = @btl_vader_CPPFLAGS@
 btl_vader_LDFLAGS = @btl_vader_LDFLAGS@
@@ -1332,21 +1341,14 @@ coll_fca_CPPFLAGS = @coll_fca_CPPFLAGS@
 coll_fca_HOME = @coll_fca_HOME@
 coll_fca_LDFLAGS = @coll_fca_LDFLAGS@
 coll_fca_LIBS = @coll_fca_LIBS@
-coll_fca_extra_CPPFLAGS = @coll_fca_extra_CPPFLAGS@
 coll_hcoll_CFLAGS = @coll_hcoll_CFLAGS@
 coll_hcoll_CPPFLAGS = @coll_hcoll_CPPFLAGS@
-coll_hcoll_HOME = @coll_hcoll_HOME@
 coll_hcoll_LDFLAGS = @coll_hcoll_LDFLAGS@
 coll_hcoll_LIBS = @coll_hcoll_LIBS@
-coll_hcoll_extra_CPPFLAGS = @coll_hcoll_extra_CPPFLAGS@
 coll_portals4_CPPFLAGS = @coll_portals4_CPPFLAGS@
 coll_portals4_LDFLAGS = @coll_portals4_LDFLAGS@
 coll_portals4_LIBS = @coll_portals4_LIBS@
 common_cuda_CPPFLAGS = @common_cuda_CPPFLAGS@
-common_mx_CFLAGS = @common_mx_CFLAGS@
-common_mx_CPPFLAGS = @common_mx_CPPFLAGS@
-common_mx_LDFLAGS = @common_mx_LDFLAGS@
-common_mx_LIBS = @common_mx_LIBS@
 common_pmi_CPPFLAGS = @common_pmi_CPPFLAGS@
 common_pmi_LDFLAGS = @common_pmi_LDFLAGS@
 common_pmi_LIBS = @common_pmi_LIBS@
@@ -1407,6 +1409,7 @@ libmca_common_sm_so_version = @libmca_common_sm_so_version@
 libmca_common_ugni_so_version = @libmca_common_ugni_so_version@
 libmca_common_verbs_so_version = @libmca_common_verbs_so_version@
 libmca_opal_common_hwloc_so_version = @libmca_opal_common_hwloc_so_version@
+libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
 libmca_opal_common_pmi_so_version = @libmca_opal_common_pmi_so_version@
 libmpi_cxx_so_version = @libmpi_cxx_so_version@
 libmpi_java_so_version = @libmpi_java_so_version@
@@ -1427,10 +1430,6 @@ mkdir_p = @mkdir_p@
 mpool_udreg_CPPFLAGS = @mpool_udreg_CPPFLAGS@
 mpool_udreg_LDFLAGS = @mpool_udreg_LDFLAGS@
 mpool_udreg_LIBS = @mpool_udreg_LIBS@
-mtl_mx_CFLAGS = @mtl_mx_CFLAGS@
-mtl_mx_CPPFLAGS = @mtl_mx_CPPFLAGS@
-mtl_mx_LDFLAGS = @mtl_mx_LDFLAGS@
-mtl_mx_LIBS = @mtl_mx_LIBS@
 mtl_mxm_CFLAGS = @mtl_mxm_CFLAGS@
 mtl_mxm_CPPFLAGS = @mtl_mxm_CPPFLAGS@
 mtl_mxm_LDFLAGS = @mtl_mxm_LDFLAGS@
@@ -1438,15 +1437,29 @@ mtl_mxm_LIBS = @mtl_mxm_LIBS@
 mtl_portals4_CPPFLAGS = @mtl_portals4_CPPFLAGS@
 mtl_portals4_LDFLAGS = @mtl_portals4_LDFLAGS@
 mtl_portals4_LIBS = @mtl_portals4_LIBS@
+mtl_psm2_CFLAGS = @mtl_psm2_CFLAGS@
+mtl_psm2_CPPFLAGS = @mtl_psm2_CPPFLAGS@
+mtl_psm2_LDFLAGS = @mtl_psm2_LDFLAGS@
+mtl_psm2_LIBS = @mtl_psm2_LIBS@
 mtl_psm_CFLAGS = @mtl_psm_CFLAGS@
 mtl_psm_CPPFLAGS = @mtl_psm_CPPFLAGS@
 mtl_psm_LDFLAGS = @mtl_psm_LDFLAGS@
 mtl_psm_LIBS = @mtl_psm_LIBS@
 oldincludedir = @oldincludedir@
+ompi_btl_usnic_CPPFLAGS = @ompi_btl_usnic_CPPFLAGS@
+ompi_btl_usnic_LDFLAGS = @ompi_btl_usnic_LDFLAGS@
+ompi_btl_usnic_LIBS = @ompi_btl_usnic_LIBS@
+ompi_mtl_ofi_CPPFLAGS = @ompi_mtl_ofi_CPPFLAGS@
+ompi_mtl_ofi_LDFLAGS = @ompi_mtl_ofi_LDFLAGS@
+ompi_mtl_ofi_LIBS = @ompi_mtl_ofi_LIBS@
 ompidatadir = @ompidatadir@
 ompiincludedir = @ompiincludedir@
 ompilibdir = @ompilibdir@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
+opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
+opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
+opal_dl_libltdl_LDFLAGS = @opal_dl_libltdl_LDFLAGS@
+opal_dl_libltdl_LIBS = @opal_dl_libltdl_LIBS@
 opal_event_external_CPPFLAGS = @opal_event_external_CPPFLAGS@
 opal_event_external_LDFLAGS = @opal_event_external_LDFLAGS@
 opal_event_external_LIBS = @opal_event_external_LIBS@
@@ -1474,6 +1487,9 @@ plm_slurm_LIBS = @plm_slurm_LIBS@
 plm_tm_CPPFLAGS = @plm_tm_CPPFLAGS@
 plm_tm_LDFLAGS = @plm_tm_LDFLAGS@
 plm_tm_LIBS = @plm_tm_LIBS@
+pml_yalla_CPPFLAGS = @pml_yalla_CPPFLAGS@
+pml_yalla_LDFLAGS = @pml_yalla_LDFLAGS@
+pml_yalla_LIBS = @pml_yalla_LIBS@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
@@ -1534,6 +1550,7 @@ headers = sshmem.h sshmem_types.h base/base.h
 @WANT_INSTALL_HEADERS_TRUE@oshmemdir = $(ompiincludedir)/$(subdir)
 @WANT_INSTALL_HEADERS_TRUE@nobase_oshmem_HEADERS = $(headers)
 @WANT_INSTALL_HEADERS_TRUE@nobase_nodist_oshmem_HEADERS = $(nodist_headers)
+dist_ompidata_DATA = base/help-oshmem-sshmem.txt
 all: all-am
 
 .SUFFIXES:
@@ -1640,6 +1657,27 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf base/.libs base/_libs
+install-dist_ompidataDATA: $(dist_ompidata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_ompidata_DATA)'; test -n "$(ompidatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(ompidatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(ompidatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(ompidatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(ompidatadir)" || exit $$?; \
+	done
+
+uninstall-dist_ompidataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_ompidata_DATA)'; test -n "$(ompidatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(ompidatadir)'; $(am__uninstall_files_from_dir)
 install-nobase_nodist_oshmemHEADERS: $(nobase_nodist_oshmem_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(nobase_nodist_oshmem_HEADERS)'; test -n "$(oshmemdir)" || list=; \
@@ -1787,9 +1825,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(oshmemdir)" "$(DESTDIR)$(oshmemdir)"; do \
+	for dir in "$(DESTDIR)$(ompidatadir)" "$(DESTDIR)$(oshmemdir)" "$(DESTDIR)$(oshmemdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1848,7 +1886,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-nobase_nodist_oshmemHEADERS \
+install-data-am: install-dist_ompidataDATA \
+	install-nobase_nodist_oshmemHEADERS \
 	install-nobase_oshmemHEADERS
 
 install-dvi: install-dvi-am
@@ -1895,7 +1934,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-nobase_nodist_oshmemHEADERS \
+uninstall-am: uninstall-dist_ompidataDATA \
+	uninstall-nobase_nodist_oshmemHEADERS \
 	uninstall-nobase_oshmemHEADERS
 
 .MAKE: install-am install-strip
@@ -1905,16 +1945,16 @@ uninstall-am: uninstall-nobase_nodist_oshmemHEADERS \
 	distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-local distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man \
-	install-nobase_nodist_oshmemHEADERS \
+	install-data install-data-am install-dist_ompidataDATA \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-nobase_nodist_oshmemHEADERS \
 	install-nobase_oshmemHEADERS install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am \
+	tags uninstall uninstall-am uninstall-dist_ompidataDATA \
 	uninstall-nobase_nodist_oshmemHEADERS \
 	uninstall-nobase_oshmemHEADERS
 

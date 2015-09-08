@@ -19,8 +19,9 @@
  * Copyright (c) 2011-2014 NVIDIA Corporation.  All rights reserved.
  * Copyright (c) 2012      Oak Ridge National Laboratory.  All rights reserved
  * Copyright (c) 2013      Intel, Inc. All rights reserved
- * Copyright (c) 2014      Research Organization for Information Science
+ * Copyright (c) 2014-2015 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2014      Bull SAS.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -162,15 +163,19 @@ mca_btl_openib_component_t mca_btl_openib_component = {
 /* This is a memory allocator hook. The purpose of this is to make
  * every malloc aligned since this speeds up IB HCA work.
  * There two basic cases here:
- * 1. Memory manager for Open MPI is enabled. Then memalign below will be
- * overridden by __memalign_hook which is set to opal_memory_linux_memalign_hook.
- * Thus, _malloc_hook is going to use opal_memory_linux_memalign_hook.
+ *
+ * 1. Memory manager for Open MPI is enabled. Then memalign below will
+ * be overridden by __memalign_hook which is set to
+ * opal_memory_linux_memalign_hook.  Thus, _malloc_hook is going to
+ * use opal_memory_linux_memalign_hook.
+ *
  * 2. No memory manager support. The memalign below is just regular glibc
  * memalign which will be called through __malloc_hook instead of malloc.
  */
 static void *btl_openib_malloc_hook(size_t sz, const void* caller)
 {
-    if (sz < mca_btl_openib_component.memalign_threshold) {
+    if (sz < mca_btl_openib_component.memalign_threshold &&
+        malloc_hook_set) {
         return mca_btl_openib_component.previous_malloc_hook(sz, caller);
     } else {
         return memalign(mca_btl_openib_component.use_memalign, sz);
@@ -289,6 +294,7 @@ static int btl_openib_component_close(void)
        then _close() (which won't set the hook) */
     if (malloc_hook_set) {
         __malloc_hook = mca_btl_openib_component.previous_malloc_hook;
+        malloc_hook_set = false;
     }
 #endif
 
@@ -988,6 +994,7 @@ static void device_destruct(mca_btl_openib_device_t *device)
     }
 
 #if HAVE_XRC
+
     if (MCA_BTL_XRC_ENABLED) {
         if (OMPI_SUCCESS != mca_btl_openib_close_xrc_domain(device)) {
             BTL_VERBOSE(("XRC Internal error. Failed to close xrc domain"));
@@ -1491,6 +1498,9 @@ static uint64_t calculate_max_reg (const char *device_name)
         return (max_reg * 7) >> 3;
     }
 
+    /* Default to being able to register everything (to ensure that
+       max_reg is initialized in all cases) */
+    max_reg = mem_total;
     if (!strncmp(device_name, "mlx5", 4)) {
         max_reg = 2 * mem_total;
 
@@ -1562,7 +1572,7 @@ static int init_one_device(opal_list_t *btl_list, struct ibv_device* ib_dev)
     /* Open up the device */
     dev_context = ibv_open_device(ib_dev);
     if (NULL == dev_context) {
-        return OMPI_ERR_OUT_OF_RESOURCE;
+        return OMPI_ERR_NOT_SUPPORTED;
     }
 
     /* Find out if this device supports RC QPs */
@@ -2453,12 +2463,14 @@ btl_openib_component_init(int *num_btl_modules,
 
 #if BTL_OPENIB_MALLOC_HOOKS_ENABLED
     /* If we got this far, then setup the memory alloc hook (because
-       we're most likely going to be using this component). The hook is to be set up
-       as early as possible in this function since we want most of the allocated resources
-       be aligned.*/
-    if (mca_btl_openib_component.use_memalign > 0) {
+       we're most likely going to be using this component). The hook
+       is to be set up as early as possible in this function since we
+       want most of the allocated resources be aligned.*/
+    if (mca_btl_openib_component.use_memalign > 0 &&
+        (opal_mem_hooks_support_level() &
+            (OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_CHUNK_SUPPORT)) != 0) {
         mca_btl_openib_component.previous_malloc_hook = __malloc_hook;
-        __malloc_hook = btl_openib_malloc_hook; 
+        __malloc_hook = btl_openib_malloc_hook;
         malloc_hook_set = true;
     }
 #endif
@@ -2490,11 +2502,6 @@ btl_openib_component_init(int *num_btl_modules,
 
     /* Initialize FD listening */
     if (OMPI_SUCCESS != ompi_btl_openib_fd_init()) {
-        goto no_btls;
-    }
-
-    /* Init CPC components */
-    if (OMPI_SUCCESS != (ret = ompi_btl_openib_connect_base_init())) {
         goto no_btls;
     }
 
@@ -2613,23 +2620,10 @@ btl_openib_component_init(int *num_btl_modules,
         goto no_btls;
     }
 
-    /* If we want fork support, try to enable it */
-#ifdef HAVE_IBV_FORK_INIT
-    if (0 != mca_btl_openib_component.want_fork_support) {
-        if (0 != ibv_fork_init()) {
-            /* If the want_fork_support MCA parameter is >0, then the
-               user was specifically asking for fork support and we
-               couldn't provide it.  So print an error and deactivate
-               this BTL. */
-            if (mca_btl_openib_component.want_fork_support > 0) {
-                opal_show_help("help-mpi-btl-openib.txt",
-                               "ibv_fork_init fail", true,
-                               ompi_process_info.nodename);
-                goto no_btls;
-            }
-        }
+    /* If fork support is requested, try to enable it */
+    if (OPAL_SUCCESS != (ret = opal_common_verbs_fork_test())) {
+        goto no_btls;
     }
-#endif
 
     /* Parse the include and exclude lists, checking for errors */
     mca_btl_openib_component.if_include_list =
@@ -2734,7 +2728,10 @@ btl_openib_component_init(int *num_btl_modules,
 
         found = true;
         ret = init_one_device(&btl_list, dev_sorted[i].ib_dev);
-        if (OMPI_SUCCESS != ret && OMPI_ERR_NOT_SUPPORTED != ret) {
+        if (OMPI_ERR_NOT_SUPPORTED == ret) {
+            ++num_devices_intentionally_ignored;
+            continue;
+        } else if (OPAL_SUCCESS != ret) {
             free(dev_sorted);
             goto no_btls;
         }
@@ -2773,6 +2770,12 @@ btl_openib_component_init(int *num_btl_modules,
                            "no active ports found", true, 
                            ompi_process_info.nodename);
         }
+        goto no_btls;
+    }
+
+    /* Now that we know we have devices and ports that we want to use,
+       init CPC components */
+    if (OMPI_SUCCESS != (ret = ompi_btl_openib_connect_base_init())) {
         goto no_btls;
     }
 
@@ -2895,6 +2898,7 @@ btl_openib_component_init(int *num_btl_modules,
     /*Unset malloc hook since the component won't start*/
     if (malloc_hook_set) {
         __malloc_hook = mca_btl_openib_component.previous_malloc_hook;
+        malloc_hook_set = false;
     }
 #endif
     return NULL;

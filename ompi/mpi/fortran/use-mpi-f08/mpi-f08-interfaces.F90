@@ -1,7 +1,7 @@
 ! -*- f90 -*-
 !
-! Copyright (c) 2009-2014 Cisco Systems, Inc.  All rights reserved.
-! Copyright (c) 2009-2013 Los Alamos National Security, LLC.
+! Copyright (c) 2009-2015 Cisco Systems, Inc.  All rights reserved.
+! Copyright (c) 2009-2015 Los Alamos National Security, LLC.
 !                         All rights reserved.
 ! Copyright (c) 2012      The University of Tennessee and The University
 !                         of Tennessee Research Foundation.  All rights
@@ -69,13 +69,9 @@ end interface  MPI_Buffer_attach
 
 interface  MPI_Buffer_detach
 subroutine MPI_Buffer_detach_f08(buffer_addr,size,ierror)
+   USE, INTRINSIC ::  ISO_C_BINDING, ONLY : C_PTR
    implicit none
-   !DEC$ ATTRIBUTES NO_ARG_CHECK :: buffer_addr
-   !GCC$ ATTRIBUTES NO_ARG_CHECK :: buffer_addr
-   !$PRAGMA IGNORE_TKR buffer_addr
-   !DIR$ IGNORE_TKR buffer_addr
-   !IBM* IGNORE_TKR buffer_addr
-   OMPI_FORTRAN_IGNORE_TKR_TYPE :: buffer_addr
+   TYPE(C_PTR), INTENT(OUT) ::  buffer_addr
    INTEGER, INTENT(OUT) :: size
    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
 end subroutine MPI_Buffer_detach_f08
@@ -3355,14 +3351,14 @@ subroutine MPI_Win_flush_local_f08(rank,win,ierror)
 end subroutine MPI_Win_flush_local_f08
 end interface  MPI_Win_flush_local
 
-interface  MPI_Win_flush_all_local
-subroutine MPI_Win_flush_all_local_f08(win,ierror)
+interface  MPI_Win_flush_local_all
+subroutine MPI_Win_flush_local_all_f08(win,ierror)
    use :: mpi_f08_types, only : MPI_Win
    implicit none
    TYPE(MPI_Win), INTENT(IN) :: win
    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
-end subroutine MPI_Win_flush_all_local_f08
-end interface  MPI_Win_flush_all_local
+end subroutine MPI_Win_flush_local_all_f08
+end interface  MPI_Win_flush_local_all
 
 interface  MPI_Win_flush_all
 subroutine MPI_Win_flush_all_f08(win,ierror)

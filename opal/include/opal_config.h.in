@@ -89,6 +89,9 @@
 /* Define to 1 if you have the <crt_externs.h> header file. */
 #undef HAVE_CRT_EXTERNS_H
 
+/* Define to 1 if you have the <ctype.h> header file. */
+#undef HAVE_CTYPE_H
+
 /* Define to 1 if we have -lcuda */
 #undef HAVE_CUDA
 
@@ -149,17 +152,21 @@
    don't. */
 #undef HAVE_DECL_IBV_ACCESS_SO
 
+/* Define to 1 if you have the declaration of `ibv_cmd_open_xrcd', and to 0 if
+   you don't. */
+#undef HAVE_DECL_IBV_CMD_OPEN_XRCD
+
+/* Define to 1 if you have the declaration of `ibv_create_xrc_rcv_qp', and to
+   0 if you don't. */
+#undef HAVE_DECL_IBV_CREATE_XRC_RCV_QP
+
+/* Define to 1 if you have the declaration of `IBV_DEVICE_XRC', and to 0 if
+   you don't. */
+#undef HAVE_DECL_IBV_DEVICE_XRC
+
 /* Define to 1 if you have the declaration of `IBV_EVENT_CLIENT_REREGISTER',
    and to 0 if you don't. */
 #undef HAVE_DECL_IBV_EVENT_CLIENT_REREGISTER
-
-/* Define to 1 if you have the declaration of `IBV_EVENT_GID_CHANGE', and to 0
-   if you don't. */
-#undef HAVE_DECL_IBV_EVENT_GID_CHANGE
-
-/* Define to 1 if you have the declaration of `ibv_event_type_str', and to 0
-   if you don't. */
-#undef HAVE_DECL_IBV_EVENT_TYPE_STR
 
 /* Define to 1 if you have the declaration of `IBV_EXP_ACCESS_ALLOCATE_MR',
    and to 0 if you don't. */
@@ -176,6 +183,10 @@
 /* Define to 1 if you have the declaration of `IBV_NODE_USNIC', and to 0 if
    you don't. */
 #undef HAVE_DECL_IBV_NODE_USNIC
+
+/* Define to 1 if you have the declaration of `IBV_SRQT_XRC', and to 0 if you
+   don't. */
+#undef HAVE_DECL_IBV_SRQT_XRC
 
 /* Define to 1 if you have the declaration of `IBV_TRANSPORT_USNIC', and to 0
    if you don't. */
@@ -301,8 +312,8 @@
 /* Define to 1 if you have the `execve' function. */
 #undef HAVE_EXECVE
 
-/* Define to 1 if you have the <fca_api.h> header file. */
-#undef HAVE_FCA_API_H
+/* Define to 1 if you have the <fca/fca_api.h> header file. */
+#undef HAVE_FCA_FCA_API_H
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
@@ -340,8 +351,8 @@
 /* Define to 1 if you have the <grp.h> header file. */
 #undef HAVE_GRP_H
 
-/* Define to 1 if you have the <hcoll_api.h> header file. */
-#undef HAVE_HCOLL_API_H
+/* Define to 1 if you have the <hcoll/api/hcoll_api.h> header file. */
+#undef HAVE_HCOLL_API_HCOLL_API_H
 
 /* Define to 1 if you have the <hostLib.h> header file. */
 #undef HAVE_HOSTLIB_H
@@ -351,6 +362,9 @@
 
 /* Define to 1 if you have the <hwloc.h> header file. */
 #undef HAVE_HWLOC_H
+
+/* Define to 1 if you have the `ibv_cmd_open_xrcd' function. */
+#undef HAVE_IBV_CMD_OPEN_XRCD
 
 /* Define to 1 if you have the `ibv_create_xrc_rcv_qp' function. */
 #undef HAVE_IBV_CREATE_XRC_RCV_QP
@@ -490,18 +504,6 @@
 /* Define to 1 if you have the <mxm/api/mxm_api.h> header file. */
 #undef HAVE_MXM_API_MXM_API_H
 
-/* Define to 1 if you have the <mx_extensions.h> header file. */
-#undef HAVE_MX_EXTENSIONS_H
-
-/* Define to 1 if you have the `mx_forget' function. */
-#undef HAVE_MX_FORGET
-
-/* Define to 1 if you have the `mx_register_unexp_handler' function. */
-#undef HAVE_MX_REGISTER_UNEXP_HANDLER
-
-/* Define to 1 if you have the <myriexpress.h> header file. */
-#undef HAVE_MYRIEXPRESS_H
-
 /* Define to 1 if you have the <ndbm.h> header file. */
 #undef HAVE_NDBM_H
 
@@ -513,9 +515,6 @@
 
 /* Define to 1 if you have the <netinet/tcp.h> header file. */
 #undef HAVE_NETINET_TCP_H
-
-/* Define to 1 if you have the <netlink/netlink.h> header file. */
-#undef HAVE_NETLINK_NETLINK_H
 
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
@@ -590,6 +589,9 @@
    */
 #undef HAVE_PSAPI_WORKING_SET_EX_INFORMATION
 
+/* Define to 1 if you have the <psm2.h> header file. */
+#undef HAVE_PSM2_H
+
 /* Define to 1 if you have the <psm.h> header file. */
 #undef HAVE_PSM_H
 
@@ -622,6 +624,9 @@
 
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
+
+/* Define to 1 if you have the <rdma/fabric.h> header file. */
+#undef HAVE_RDMA_FABRIC_H
 
 /* Define to 1 if you have the <rdma/rdma_cma.h> header file. */
 #undef HAVE_RDMA_RDMA_CMA_H
@@ -673,9 +678,6 @@
 
 /* Define to 1 if you have the `snprintf' function. */
 #undef HAVE_SNPRINTF
-
-/* Define to 1 if you have the <sn/xpmem.h> header file. */
-#undef HAVE_SN_XPMEM_H
 
 /* Define to 1 if you have the `socketpair' function. */
 #undef HAVE_SOCKETPAIR
@@ -1333,10 +1335,6 @@
    run-time */
 #undef MPI_PARAM_CHECK
 
-/* MX installation provide access to the mx_open_board and
-   mx__get_mapper_state functions */
-#undef MX_HAVE_MAPPER_STATE
-
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
 
@@ -1603,6 +1601,9 @@
 /* Enable features required for ConnectX XRC support */
 #undef OMPI_HAVE_CONNECTX_XRC
 
+/* Enable features required for XRC domains support */
+#undef OMPI_HAVE_CONNECTX_XRC_DOMAINS
+
 /* Whether or not we have compiled with C++ exceptions support */
 #undef OMPI_HAVE_CXX_EXCEPTION_SUPPORT
 
@@ -1827,6 +1828,9 @@
 
 /* Index into endpoint array for MTL */
 #undef OMPI_PROC_ENDPOINT_TAG_MTL
+
+/* Index into endpoint array for PML */
+#undef OMPI_PROC_ENDPOINT_TAG_PML
 
 /* Index into endpoint array for PORTALS4 */
 #undef OMPI_PROC_ENDPOINT_TAG_PORTALS4
@@ -2085,6 +2089,9 @@
 /* Whether we have CUDA GDR support available */
 #undef OPAL_CUDA_GDR_SUPPORT
 
+/* Whether we have CUDA cuPointerGetAttributes function available */
+#undef OPAL_CUDA_GET_ATTRIBUTES
+
 /* Whether we want cuda device pointer support */
 #undef OPAL_CUDA_SUPPORT
 
@@ -2129,6 +2136,9 @@
 
 /* Whether C compiler supports XLC style inline assembly */
 #undef OPAL_C_XLC_INLINE_ASSEMBLY
+
+/* Whether we have lt_dladvise or not */
+#undef OPAL_DL_LIBLTDL_HAVE_LT_DLADVISE
 
 /* Whether we want checkpoint/restart enabled debugging functionality or not
    */
@@ -2263,6 +2273,9 @@
 /* whether dirname is found and available */
 #undef OPAL_HAVE_DIRNAME
 
+/* Whether the OPAL DL framework is functional or not */
+#undef OPAL_HAVE_DL_SUPPORT
+
 /* whether fbtl_posix is found and available */
 #undef OPAL_HAVE_FBTL_POSIX
 
@@ -2278,9 +2291,6 @@
 /* Do not use outside of mpi.h. Define to 1 if the system has the type `long
    long'. */
 #undef OPAL_HAVE_LONG_LONG
-
-/* Whether libltdl appears to have the lt_dladvise interface */
-#undef OPAL_HAVE_LTDL_ADVISE
 
 /* whether openpty is found and available */
 #undef OPAL_HAVE_OPENPTY
@@ -2334,9 +2344,6 @@
 /* ident string for Open MPI */
 #undef OPAL_IDENT_STRING
 
-/* Whether we are using the internal libltdl or not */
-#undef OPAL_LIBLTDL_INTERNAL
-
 /* Major release number of Open Portable Access Layer */
 #undef OPAL_MAJOR_VERSION
 
@@ -2367,6 +2374,9 @@
 /* Whether the C compiler supports "bool" without any other help (such as
    <stdbool.h>) */
 #undef OPAL_NEED_C_BOOL
+
+/* Whether libraries can be configured with destructor functions */
+#undef OPAL_NO_LIB_DESTRUCTOR
 
 /* package/branding string for Open MPI */
 #undef OPAL_PACKAGE_STRING
@@ -2410,9 +2420,6 @@
 
 /* Enable per-user config files */
 #undef OPAL_WANT_HOME_CONFIG_FILES
-
-/* Whether to include support for libltdl or not */
-#undef OPAL_WANT_LIBLTDL
 
 /* if want pretty-print stack trace feature */
 #undef OPAL_WANT_PRETTY_PRINT_STACKTRACE
@@ -2696,12 +2703,6 @@
 /* Define this to the thread ID type */
 #undef hwloc_thread_t
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
-#ifndef __cplusplus
-#undef inline
-#endif
-
 /* A bogus type that allows us to have sentinel type values that are still
    valid */
 #undef ompi_fortran_bogus_type_t
@@ -2777,20 +2778,6 @@
 
 /* C type corresponding to Fortran REAL */
 #undef ompi_fortran_real_t
-
-/* Define to the equivalent of the C99 'restrict' keyword, or to
-   nothing if this is not supported.  Do not define if restrict is
-   supported directly.  */
-#undef restrict
-/* Work around a bug in Sun C++: it does not support _Restrict or
-   __restrict__, even though the corresponding Sun C compiler ends up with
-   "#define restrict _Restrict" or "#define restrict __restrict__" in the
-   previous line.  Perhaps some future version of Sun C++ will work with
-   restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
-#if defined __SUNPRO_CC && !defined __RESTRICT
-# define _Restrict
-# define __restrict__
-#endif
 
 
 #include "opal_config_bottom.h"

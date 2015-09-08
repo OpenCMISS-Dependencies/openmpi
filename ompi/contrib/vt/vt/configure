@@ -26983,6 +26983,39 @@ fi
 
 
 
+	# Extract version from Open64, do not use -dumpversion, as this does not
+	# uniquely identify the Open64 compiler
+	opencc=`$CC -E -dM -x c /dev/null 2>/dev/null | sed -n -e 's/#define __OPENCC__ // p'`
+	if test x"$opencc" != x"" ; then :
+
+		opencc_minor=`$CC -E -dM -x c /dev/null | sed -n -e 's/#define __OPENCC_MINOR__ // p'`
+		opencc_patchlevel=`$CC -E -dM -x c /dev/null | sed -n -e 's/#define __OPENCC_PATCHLEVEL__ // p'`
+		opencc_subpatchlevel=0
+		case $opencc_patchlevel in #(
+  "") :
+    opencc_patchlevel=0 ;; #(
+  *.*) :
+
+			opencc_subpatchlevel=${opencc_patchlevel##*.}
+			opencc_patchlevel=${opencc_patchlevel%.*}
+		 ;; #(
+  *) :
+     ;;
+esac
+		opencc_version=`expr $opencc "*" 1000 + $opencc_minor "*" 100 + $opencc_patchlevel "*" 10 + $opencc_subpatchlevel`
+
+cat >>confdefs.h <<_ACEOF
+#define VT_OPENCC_VERSION $opencc_version
+_ACEOF
+
+		{ opencc_minor=; unset opencc_minor;}
+		{ opencc_patchlevel=; unset opencc_patchlevel;}
+		{ opencc_subpatchlevel=; unset opencc_subpatchlevel;}
+		{ opencc_version=; unset opencc_version;}
+
+fi
+	{ opencc=; unset opencc;}
+
 					if test x"$force_threads_list" != x -a x"$omp_error" = "xyes"; then :
   threads_error="yes"; break
 else

@@ -3,7 +3,7 @@
 # Copyright (c) 2011      NVIDIA Corporation.  All rights reserved.
 # Copyright (c) 2013      Mellanox Technologies, Inc.
 #                         All rights reserved.
-# Copyright (c) 2014      Intel, Inc. All rights reserved.
+# Copyright (c) 2015      Intel, Inc. All rights reserved.
 
 # This is the VERSION file for Open MPI, describing the precise
 # version of Open MPI in this distribution.  The various components of
@@ -14,8 +14,8 @@
 # <major>.<minor>.<release>.
 
 major=1
-minor=8
-release=4
+minor=10
+release=0
 
 # greek is generally used for alpha or beta release tags.  If it is
 # non-empty, it will be appended to the version number.  It does not
@@ -31,7 +31,7 @@ greek=
 # command, or with the date (if "git describe" fails) in the form of
 # "date<date>".
 
-repo_rev=v1.8.3-330-g0344f04
+repo_rev=v1.10-dev-293-gf694355
 
 # If tarball_version is not empty, it is used as the version string in
 # the tarball filename, regardless of all other versions listed in
@@ -45,7 +45,7 @@ tarball_version=
 
 # The date when this release was created
 
-date="Dec 19, 2014"
+date="Aug 24, 2015"
 
 # The shared library version of each of Open MPI's public libraries.
 # These versions are maintained in accordance with the "Library
@@ -82,16 +82,16 @@ date="Dec 19, 2014"
 # Version numbers are described in the Libtool current:revision:age
 # format.
 
-libmpi_so_version=7:0:6
+libmpi_so_version=12:0:0
 libmpi_cxx_so_version=2:3:1
-libmpi_mpifh_so_version=7:0:5
+libmpi_mpifh_so_version=12:0:0
 libmpi_usempi_tkr_so_version=5:0:4
-libmpi_usempi_ignore_tkr_so_version=1:0:1
-libmpi_usempif08_so_version=6:0:6
-libopen_rte_so_version=7:5:0
-libopen_pal_so_version=8:1:2
+libmpi_usempi_ignore_tkr_so_version=6:0:0
+libmpi_usempif08_so_version=11:0:0
+libopen_rte_so_version=12:0:0
+libopen_pal_so_version=13:0:0
 libmpi_java_so_version=3:0:2
-liboshmem_so_version=3:1:0
+liboshmem_so_version=8:0:0
 
 # "Common" components install standalone libraries that are run-time
 # linked by one or more components.  So they need to be versioned as
@@ -100,10 +100,12 @@ liboshmem_so_version=3:1:0
 
 # OMPI layer
 libmca_common_cuda_so_version=1:7:0
-libmca_common_mx_so_version=2:5:0
 libmca_common_sm_so_version=4:4:0
 libmca_common_ugni_so_version=2:1:2
-libmca_common_verbs_so_version=2:3:2
+libmca_common_verbs_so_version=7:0:0
 
 # OPAL layer
-libmca_opal_common_pmi_so_version=2:3:1
+libmca_opal_common_libfabric_so_version=1:0:0
+
+# OPAL layer
+libmca_opal_common_pmi_so_version=7:0:0

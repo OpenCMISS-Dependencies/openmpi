@@ -1,5 +1,7 @@
 /**
-  Copyright (c) 2011 Mellanox Technologies. All rights reserved.
+  Copyright (c) 2011      Mellanox Technologies. All rights reserved.
+  Copyright (c) 2015      Research Organization for Information Science
+                          and Technology (RIST). All rights reserved.
   $COPYRIGHT$
 
   Additional copyrights may follow
@@ -23,8 +25,8 @@
 #include "ompi/attribute/attribute.h"
 #include "ompi/op/op.h"
 
-#include "hcoll_api.h"
-#include "hcoll_constants.h"
+#include "hcoll/api/hcoll_api.h"
+#include "hcoll/api/hcoll_constants.h"
 
 
 #include "coll_hcoll_debug.h"
@@ -71,8 +73,14 @@ struct mca_coll_hcoll_component_t {
     /** MCA parameter: ON/OFF user defined datatype through HCOLL */
     int   hcoll_datatype_fallback;
 
+#if HCOLL_API >= HCOLL_VERSION(3,2)
+    /* hcoll init options */
+    hcoll_init_opts_t *init_opts;
+#endif
+
     /* FCA global stuff */
     mca_coll_hcoll_ops_t hcoll_ops;
+
     ompi_free_list_t requests;
 };
 typedef struct mca_coll_hcoll_component_t mca_coll_hcoll_component_t;

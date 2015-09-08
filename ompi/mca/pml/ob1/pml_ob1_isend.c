@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2014 The University of Tennessee and The University
+ * Copyright (c) 2004-2015 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -12,7 +12,9 @@
  *                         All rights reserved.
  * Copyright (c) 2007-2014 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2014 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2014      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -26,9 +28,8 @@
 #include "pml_ob1_sendreq.h"
 #include "pml_ob1_recvreq.h"
 #include "ompi/peruse/peruse-internal.h"
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#endif  /* HAVE_ALLOCA_H */
+
+mca_pml_ob1_send_request_t *mca_pml_ob1_sendreq = NULL;
 
 int mca_pml_ob1_isend_init(void *buf,
                            size_t count,
@@ -69,16 +70,16 @@ static inline int mca_pml_ob1_send_inline (void *buf, size_t count,
     mca_btl_base_descriptor_t *des = NULL;
     mca_pml_ob1_match_hdr_t match;
     mca_bml_base_btl_t *bml_btl;
-    OPAL_PTRDIFF_TYPE lb, extent;
     opal_convertor_t convertor;
-    size_t size = 0;
+    size_t size;
     int rc;
 
     bml_btl = mca_bml_base_btl_array_get_next(&endpoint->btl_eager);
+    if( NULL == bml_btl->btl->btl_sendi)
+        return OMPI_ERR_NOT_AVAILABLE;
 
-    ompi_datatype_get_extent (datatype, &lb, &extent);
-
-    if (OPAL_UNLIKELY((extent * count) > 256 || !bml_btl->btl->btl_sendi)) {
+    ompi_datatype_type_size (datatype, &size);
+    if ((size * count) > 256) {  /* some random number */
         return OMPI_ERR_NOT_AVAILABLE;
     }
 
@@ -90,8 +91,10 @@ static inline int mca_pml_ob1_send_inline (void *buf, size_t count,
         /* remote architecture and prepared with the datatype.   */
         opal_convertor_copy_and_prepare_for_send (dst_proc->proc_convertor,
                                                   (const struct opal_datatype_t *) datatype,
-						  count, buf, 0, &convertor);
+                                                  count, buf, 0, &convertor);
         opal_convertor_get_packed_size (&convertor, &size);
+    } else {
+        size = 0;
     }
 
     match.hdr_common.hdr_flags = 0;
@@ -185,8 +188,7 @@ int mca_pml_ob1_send(void *buf,
     ompi_proc_t *dst_proc = ompi_comm_peer_lookup (comm, dst);
     mca_bml_base_endpoint_t* endpoint = (mca_bml_base_endpoint_t*)
                                         dst_proc->proc_endpoints[OMPI_PROC_ENDPOINT_TAG_BML];
-    mca_pml_ob1_send_request_t *sendreq =
-        alloca(mca_pml_base_send_requests.fl_frag_size);
+    mca_pml_ob1_send_request_t *sendreq = NULL;
     int16_t seqn;
     int rc;
 
@@ -210,6 +212,11 @@ int mca_pml_ob1_send(void *buf,
 
     seqn = (uint16_t) OPAL_THREAD_ADD32(&ob1_comm->procs[dst].send_sequence, 1);
 
+    /**
+     * The immediate send will not have a request, so they are
+     * intracable from the point of view of any debugger attached to
+     * the parallel application.
+     */
     if (MCA_PML_BASE_SEND_SYNCHRONOUS != sendmode) {
         rc = mca_pml_ob1_send_inline (buf, count, datatype, dst, tag, seqn, dst_proc,
                                       endpoint, comm);
@@ -218,7 +225,18 @@ int mca_pml_ob1_send(void *buf,
         }
     }
 
-    OBJ_CONSTRUCT(sendreq, mca_pml_ob1_send_request_t);
+#if !OMPI_ENABLE_THREAD_MULTIPLE
+    sendreq = mca_pml_ob1_sendreq;
+    if( OPAL_UNLIKELY(NULL == sendreq) )
+#endif  /* !OMPI_ENABLE_THREAD_MULTIPLE */
+        {
+            MCA_PML_OB1_SEND_REQUEST_ALLOC(comm, dst, sendreq);
+            if (NULL == sendreq)
+                return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
+#if !OMPI_ENABLE_THREAD_MULTIPLE
+            mca_pml_ob1_sendreq = sendreq;
+#endif  /* !OMPI_ENABLE_THREAD_MULTIPLE */
+        }
     sendreq->req_send.req_base.req_proc = dst_proc;
     sendreq->src_des = NULL;
 
@@ -238,9 +256,13 @@ int mca_pml_ob1_send(void *buf,
         ompi_request_wait_completion(&sendreq->req_send.req_base.req_ompi);
 
         rc = sendreq->req_send.req_base.req_ompi.req_status.MPI_ERROR;
-        MCA_PML_BASE_SEND_REQUEST_FINI(&sendreq->req_send);
     }
-    OBJ_DESTRUCT(sendreq);
+
+#if OMPI_ENABLE_THREAD_MULTIPLE
+    MCA_PML_OB1_SEND_REQUEST_RETURN(sendreq);
+#else
+    mca_pml_ob1_send_request_fini (sendreq);
+#endif
 
     return rc;
 }

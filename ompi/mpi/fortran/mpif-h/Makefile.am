@@ -14,6 +14,8 @@
 # Copyright (c) 2011-2013 Universite Bordeaux 1
 # Copyright (c) 2013-2014 Los Alamos National Security, LLC. All rights
 #                         reserved.
+# Copyright (c) 2015      Research Organization for Information Science
+#                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
 # 
 # Additional copyrights may follow
@@ -107,25 +109,13 @@ MOSTLYCLEANFILES = *.mod
 # out this workaround indefinitely.  So Jeff advised Absoft to fix
 # this bug in Sep 2014.
 if OMPI_BUILD_FORTRAN_MPIFH_BINDINGS
-noinst_LTLIBRARIES += libmpi_mpifh_sizeof.la
 
-# For ABI reasons, we *always* build the "old" MPI_SIZEOF symbols into
-# the mpifh library.  See ompi/mpi/fortran/README-v1.8-ABI.txt for
-# details.
-libmpi_mpifh_sizeof_la_SOURCES = sizeof-mpi-pre-1.8.4_f.f90
-if OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS
-# If we're building the f08 bindings, then also build the "old"
-# MPI_SIZEOF symbols for the f08 bindings.
-libmpi_mpifh_sizeof_la_SOURCES += sizeof-mpif08-pre-1.8.4_f.F90
-endif OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS
-# The sizeof-pre-1.8.4 source needs a header file that is generated in
-# the use-mpi-tkr directory.
-libmpi_mpifh_sizeof_la_FCFLAGS = -I$(top_builddir)/ompi/mpi/fortran/use-mpi-tkr
 if BUILD_FORTRAN_SIZEOF
+noinst_LTLIBRARIES += libmpi_mpifh_sizeof.la
 # Do not dist this file; it is generated
 nodist_libmpi_mpifh_sizeof_la_SOURCES = sizeof_f.f90
-endif
 libmpi_mpifh_la_LIBADD += libmpi_mpifh_sizeof.la
+endif
 
 sizeof_pl = $(top_srcdir)/ompi/mpi/fortran/base/gen-mpi-sizeof.pl
 
@@ -135,7 +125,9 @@ sizeof_f.f90:
 	$(OMPI_V_GEN) $(sizeof_pl) \
 	    --impl=$@ --ierror=mandatory --mpi \
 	    --maxrank=$(OMPI_FORTRAN_MAX_ARRAY_RANK) \
-	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF)
+	    --generate=$(OMPI_FORTRAN_BUILD_SIZEOF) \
+	    --real16=$(OMPI_HAVE_FORTRAN_REAL16) \
+	    --complex32=$(OMPI_HAVE_FORTRAN_COMPLEX32)
 endif OMPI_BUILD_FORTRAN_MPIFH_BINDINGS
 
 if BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER

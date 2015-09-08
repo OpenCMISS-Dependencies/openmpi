@@ -1,4 +1,26 @@
 /*
+ * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
+ *                         University Research and Technology
+ *                         Corporation.  All rights reserved.
+ * Copyright (c) 2004-2005 The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
+ * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+ *                         University of Stuttgart.  All rights reserved.
+ * Copyright (c) 2004-2005 The Regents of the University of California.
+ *                         All rights reserved.
+ * $COPYRIGHT$
+ * 
+ * Additional copyrights may follow
+ * 
+ * $HEADER$
+ */
+/*
+ * This file is almost a complete re-write for Open MPI compared to the
+ * original mpiJava package. Its license and copyright are listed below.
+ * See <path to ompi/mpi/java/README> for more information.
+ */
+/*
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
@@ -598,7 +620,9 @@ public final Request iSend(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(iSend(handle, buf, count, type.handle, dest, tag));
+    Request req = new Request(iSend(handle, buf, count, type.handle, dest, tag));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iSend(
@@ -623,7 +647,9 @@ public final Request ibSend(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(ibSend(handle, buf, count, type.handle, dest, tag));
+    Request req = new Request(ibSend(handle, buf, count, type.handle, dest, tag));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long ibSend(
@@ -648,7 +674,9 @@ public final Request isSend(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(isSend(handle, buf, count, type.handle, dest, tag));
+    Request req = new Request(isSend(handle, buf, count, type.handle, dest, tag));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long isSend(
@@ -673,7 +701,9 @@ public final Request irSend(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(irSend(handle, buf, count, type.handle, dest, tag));
+    Request req = new Request(irSend(handle, buf, count, type.handle, dest, tag));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long irSend(
@@ -698,7 +728,9 @@ public final Request iRecv(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(iRecv(handle, buf, count, type.handle, source, tag));
+    Request req = new Request(iRecv(handle, buf, count, type.handle, source, tag));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iRecv(
@@ -726,7 +758,9 @@ public final Prequest sendInit(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Prequest(sendInit(handle, buf, count, type.handle, dest, tag));
+    Prequest preq = new Prequest(sendInit(handle, buf, count, type.handle, dest, tag));
+    preq.addSendBufRef(buf);
+    return preq;
 }
 
 private native long sendInit(
@@ -751,7 +785,9 @@ public final Prequest bSendInit(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Prequest(bSendInit(handle, buf, count, type.handle, dest, tag));
+    Prequest preq = new Prequest(bSendInit(handle, buf, count, type.handle, dest, tag));
+    preq.addSendBufRef(buf);
+    return preq;
 }
 
 private native long bSendInit(
@@ -776,7 +812,9 @@ public final Prequest sSendInit(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Prequest(sSendInit(handle, buf, count, type.handle, dest, tag));
+    Prequest preq = new Prequest(sSendInit(handle, buf, count, type.handle, dest, tag));
+    preq.addSendBufRef(buf);
+    return preq;
 }
 
 private native long sSendInit(
@@ -801,7 +839,9 @@ public final Prequest rSendInit(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Prequest(rSendInit(handle, buf, count, type.handle, dest, tag));
+    Prequest preq = new Prequest(rSendInit(handle, buf, count, type.handle, dest, tag));
+    preq.addSendBufRef(buf);
+    return preq;
 }
 
 private native long rSendInit(
@@ -826,7 +866,9 @@ public final Prequest recvInit(Buffer buf, int count,
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Prequest(recvInit(handle, buf, count, type.handle, source, tag));
+    Prequest preq = new Prequest(recvInit(handle, buf, count, type.handle, source, tag));
+    preq.addRecvBufRef(buf);
+    return preq;
 }
 
 private native long recvInit(
@@ -1209,7 +1251,9 @@ public final Request iBcast(Buffer buf, int count, Datatype type, int root)
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(iBcast(handle, buf, count, type.handle, root));
+    Request req = new Request(iBcast(handle, buf, count, type.handle, root));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iBcast(
@@ -1315,9 +1359,11 @@ public final Request iGather(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iGather(handle, sendbuf, sendcount, sendtype.handle,
-                               recvbuf, recvcount, recvtype.handle, root));
+    Request req = new Request(iGather(handle, sendbuf, sendcount, sendtype.handle,
+            recvbuf, recvcount, recvtype.handle, root));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1338,9 +1384,10 @@ public final Request iGather(Buffer buf, int count, Datatype type, int root)
 {
     MPI.check();
     assertDirectBuffer(buf);
-
-    return new Request(iGather(handle, null, 0, 0,
-                               buf, count, type.handle, root));
+    Request req = new Request(iGather(handle, null, 0, 0,
+            buf, count, type.handle, root));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iGather(
@@ -1484,10 +1531,12 @@ public final Request iGatherv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iGatherv(
+    Request req = new Request(iGatherv(
             handle, sendbuf, sendcount, sendtype.handle,
             recvbuf, recvcount, displs, recvtype.handle, root));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1510,9 +1559,10 @@ public final Request iGatherv(Buffer recvbuf, int[] recvcount, int[] displs,
 {
     MPI.check();
     assertDirectBuffer(recvbuf);
-
-    return new Request(iGatherv(handle, null, 0, 0,
+    Request req = new Request(iGatherv(handle, null, 0, 0,
             recvbuf, recvcount, displs, recvtype.handle, root));
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1534,9 +1584,10 @@ public final Request iGatherv(Buffer sendbuf, int sendcount,
 {
     MPI.check();
     assertDirectBuffer(sendbuf);
-
-    return new Request(iGatherv(handle, sendbuf, sendcount, sendtype.handle,
-                                null, null, null, 0, root));
+    Request req = new Request(iGatherv(handle, sendbuf, sendcount, sendtype.handle,
+            null, null, null, 0, root));
+    req.addSendBufRef(sendbuf);
+    return req;
 }
 
 private native long iGatherv(
@@ -1643,9 +1694,11 @@ public final Request iScatter(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iScatter(handle, sendbuf, sendcount, sendtype.handle,
-                                recvbuf, recvcount, recvtype.handle, root));
+    Request req = new Request(iScatter(handle, sendbuf, sendcount, sendtype.handle,
+            recvbuf, recvcount, recvtype.handle, root));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1666,9 +1719,10 @@ public final Request iScatter(Buffer buf, int count, Datatype type, int root)
 {
     MPI.check();
     assertDirectBuffer(buf);
-
-    return new Request(iScatter(handle, buf, count, type.handle,
-                                null, 0, 0, root));
+    Request req = new Request(iScatter(handle, buf, count, type.handle,
+            null, 0, 0, root));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iScatter(
@@ -1809,10 +1863,12 @@ public final Request iScatterv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iScatterv(
+    Request req = new Request(iScatterv(
             handle, sendbuf, sendcount, displs, sendtype.handle,
             recvbuf, recvcount, recvtype.handle, root));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1834,9 +1890,10 @@ public final Request iScatterv(Buffer sendbuf, int[] sendcount, int[] displs,
 {
     MPI.check();
     assertDirectBuffer(sendbuf);
-
-    return new Request(iScatterv(handle, sendbuf, sendcount, displs,
-                                 sendtype.handle, null, 0, 0, root));
+    Request req = new Request(iScatterv(handle, sendbuf, sendcount, displs,
+            sendtype.handle, null, 0, 0, root));
+    req.addSendBufRef(sendbuf);
+    return req;
 }
 
 /**
@@ -1857,9 +1914,10 @@ public final Request iScatterv(Buffer recvbuf, int recvcount,
 {
     MPI.check();
     assertDirectBuffer(recvbuf);
-
-    return new Request(iScatterv(handle, null, null, null, 0,
-                                 recvbuf, recvcount, recvtype.handle, root));
+    Request req = new Request(iScatterv(handle, null, null, null, 0,
+            recvbuf, recvcount, recvtype.handle, root));
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iScatterv(
@@ -1959,9 +2017,11 @@ public final Request iAllGather(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iAllGather(handle, sendbuf, sendcount, sendtype.handle,
-                                  recvbuf, recvcount, recvtype.handle));
+    Request req = new Request(iAllGather(handle, sendbuf, sendcount, sendtype.handle,
+            recvbuf, recvcount, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -1979,7 +2039,9 @@ public final Request iAllGather(Buffer buf, int count, Datatype type)
 {
     MPI.check();
     assertDirectBuffer(buf);
-    return new Request(iAllGather(handle, null, 0, 0, buf, count, type.handle));
+    Request req = new Request(iAllGather(handle, null, 0, 0, buf, count, type.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iAllGather(
@@ -2084,10 +2146,12 @@ public final Request iAllGatherv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iAllGatherv(
+    Request req = new Request(iAllGatherv(
             handle, sendbuf, sendcount, sendtype.handle,
             recvbuf, recvcount, displs, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -2107,9 +2171,10 @@ public final Request iAllGatherv(
 {
     MPI.check();
     assertDirectBuffer(buf);
-
-    return new Request(iAllGatherv(
+    Request req = new Request(iAllGatherv(
             handle, null, 0, 0, buf, count, displs, type.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iAllGatherv(
@@ -2184,9 +2249,11 @@ public final Request iAllToAll(Buffer sendbuf, int sendcount, Datatype sendtype,
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iAllToAll(handle, sendbuf, sendcount, sendtype.handle,
-                                 recvbuf, recvcount, recvtype.handle));
+    Request req = new Request(iAllToAll(handle, sendbuf, sendcount, sendtype.handle,
+            recvbuf, recvcount, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iAllToAll(
@@ -2269,10 +2336,12 @@ public final Request iAllToAllv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iAllToAllv(
+    Request req = new Request(iAllToAllv(
             handle, sendbuf, sendcount, sdispls, sendtype.handle,
             recvbuf, recvcount, rdispls, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iAllToAllv(long comm,
@@ -2346,10 +2415,12 @@ public final Request iNeighborAllGather(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iNeighborAllGather(
+    Request req = new Request(iNeighborAllGather(
             handle, sendbuf, sendcount, sendtype.handle,
             recvbuf, recvcount, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iNeighborAllGather(
@@ -2424,10 +2495,12 @@ public final Request iNeighborAllGatherv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iNeighborAllGatherv(
+    Request req = new Request(iNeighborAllGatherv(
             handle, sendbuf, sendcount, sendtype.handle,
             recvbuf, recvcount, displs, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iNeighborAllGatherv(
@@ -2501,10 +2574,12 @@ public final Request iNeighborAllToAll(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iNeighborAllToAll(
+    Request req = new Request(iNeighborAllToAll(
             handle, sendbuf, sendcount, sendtype.handle,
             recvbuf, recvcount, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iNeighborAllToAll(
@@ -2582,10 +2657,12 @@ public final Request iNeighborAllToAllv(
 {
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iNeighborAllToAllv(
+    Request req = new Request(iNeighborAllToAllv(
             handle, sendbuf, sendcount, sdispls, sendtype.handle,
             recvbuf, recvcount, rdispls, recvtype.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 private native long iNeighborAllToAllv(
@@ -2699,10 +2776,12 @@ public final Request iReduce(Buffer sendbuf, Buffer recvbuf,
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
     op.setDatatype(type);
-
-    return new Request(iReduce(
+    Request req = new Request(iReduce(
             handle, sendbuf, recvbuf, count,
             type.handle, type.baseType, op, op.handle, root));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -2726,10 +2805,11 @@ public final Request iReduce(Buffer buf, int count,
     MPI.check();
     assertDirectBuffer(buf);
     op.setDatatype(type);
-
-    return new Request(iReduce(
+    Request req = new Request(iReduce(
             handle, null, buf, count,
             type.handle, type.baseType, op, op.handle, root));
+    req.addSendBufRef(buf);
+    return req;
 }
 
 private native long iReduce(
@@ -2830,9 +2910,11 @@ public final Request iAllReduce(Buffer sendbuf, Buffer recvbuf,
     MPI.check();
     assertDirectBuffer(sendbuf, recvbuf);
     op.setDatatype(type);
-
-    return new Request(iAllReduce(handle, sendbuf, recvbuf, count,
-                                  type.handle, type.baseType, op, op.handle));
+    Request req = new Request(iAllReduce(handle, sendbuf, recvbuf, count,
+            type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -2853,10 +2935,11 @@ public final Request iAllReduce(Buffer buf, int count, Datatype type, Op op)
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(buf);
-
-    return new Request(iAllReduce(
+    Request req = new Request(iAllReduce(
             handle, null, buf, count,
             type.handle, type.baseType, op, op.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iAllReduce(
@@ -2959,10 +3042,12 @@ public final Request iReduceScatter(Buffer sendbuf, Buffer recvbuf,
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iReduceScatter(
+    Request req = new Request(iReduceScatter(
             handle, sendbuf, recvbuf, recvcounts,
             type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -2985,10 +3070,11 @@ public final Request iReduceScatter(
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(buf);
-
-    return new Request(iReduceScatter(
+    Request req = new Request(iReduceScatter(
             handle, null, buf, counts,
             type.handle, type.baseType, op, op.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iReduceScatter(
@@ -3086,10 +3172,12 @@ public final Request iReduceScatterBlock(
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(sendbuf, recvbuf);
-
-    return new Request(iReduceScatterBlock(
+    Request req = new Request(iReduceScatterBlock(
             handle, sendbuf, recvbuf, recvcount,
             type.handle, type.baseType, op, op.handle));
+    req.addSendBufRef(sendbuf);
+    req.addRecvBufRef(recvbuf);
+    return req;
 }
 
 /**
@@ -3110,10 +3198,11 @@ public final Request iReduceScatterBlock(
     MPI.check();
     op.setDatatype(type);
     assertDirectBuffer(buf);
-
-    return new Request(iReduceScatterBlock(
+    Request req = new Request(iReduceScatterBlock(
             handle, null, buf, count, type.handle,
             type.baseType, op, op.handle));
+    req.addRecvBufRef(buf);
+    return req;
 }
 
 private native long iReduceScatterBlock(
